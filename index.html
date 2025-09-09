@@ -72,17 +72,14 @@
       .red { background-color: #F44336; }
       .purple { background-color: #9C27B0; }
       
-      /* เพิ่มสไตล์สำหรับปุ่มที่ถูกเปิด */
       .control-button.active {
         box-shadow: 0 0 15px 5px #ffeb3b;
         transform: scale(1.05);
       }
-
       .icon {
         font-size: 24px;
         margin-top: 5px;
       }
-
       .message-box {
         margin-top: 20px;
         padding: 10px;
@@ -155,10 +152,10 @@
           
           if (currentStatus[color] === 'ON') {
             button.classList.add('active');
-            icon.textContent = '🟢'; // Green ON icon
+            icon.textContent = '🟢'; 
           } else {
             button.classList.remove('active');
-            icon.textContent = '⚪'; // White OFF icon
+            icon.textContent = '⚪';
           }
         });
       }
@@ -185,22 +182,21 @@
 
         document.getElementById('response').innerText = 'กำลังส่งคำสั่ง... โปรดรอสักครู่';
 
-        google.script.run
-          .withSuccessHandler(onSuccess)
-          .withFailureHandler(onFailure)
-          .sendPostToApi(payload);
-      }
-
-      function onSuccess(response) {
-        if (response.success) {
-          document.getElementById('response').innerText = "✅ คำสั่งถูกส่งสำเร็จ\n\nข้อมูลที่ส่งไป:\n" + JSON.stringify(response.response, null, 2);
-        } else {
-          document.getElementById('response').innerText = "❌ เกิดข้อผิดพลาดในการส่งคำสั่ง\n\nข้อมูลข้อผิดพลาด:\n" + JSON.stringify(response.error, null, 2);
-        }
-      }
-
-      function onFailure(error) {
-        document.getElementById('response').innerText = "⚠️ เกิดข้อผิดพลาดที่ไม่คาดคิด: " + error.message;
+        // ใช้ fetch() เพื่อส่งคำขอ POST ไปยัง API โดยตรง
+        fetch("https://api.thingsonnet.net/io/ttlight", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('response').innerText = "✅ คำสั่งถูกส่งสำเร็จ\n\nข้อมูลที่ส่งไป:\n" + JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            document.getElementById('response').innerText = "⚠️ ไม่สามารถเชื่อมต่อกับ API ได้: " + error.message;
+        });
       }
     </script>
   </body>
